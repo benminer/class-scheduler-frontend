@@ -1,0 +1,25 @@
+{
+  "name": "classfinder-scheduler",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "apollo-client-preset": "^1.0.3",
+    "bootstrap": "^4.0.0-beta",
+    "graphql": "^0.11.7",
+    "graphql-tag": "^2.5.0",
+    "jquery": "^3.0.0",
+    "react": "^16.1.1",
+    "react-apollo": "^2.0.1",
+    "react-dom": "^16.1.1",
+    "react-scripts": "1.0.17",
+    "react-select": "^1.0.0-rc.10",
+    "reactstrap": "^5.0.0-alpha.4",
+    "semantic-ui-react": "^0.78.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

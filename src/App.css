@@ -7,11 +7,19 @@
 .AppContent {
   text-align: center;
   background: #142654;
-  height: 255px;
+  height: 85px;
 }
 
 .App-logo {
-  height: 180px;
+  animation: App-logo-spin 20s infinite linear;
+  height: 50px;
+  align-self: center;
+  margin-top: 10px;
+}
+
+.App-logo-l {
+  animation: App-logo-spin-left 20s infinite linear;
+  height: 50px;
   align-self: center;
   margin-top: 10px;
 }
@@ -23,15 +31,36 @@
   font-family: monospace;
 }
 
+.App-text {
+  animation: App-text-loop infinite 20s linear;
+  font-size: medium;
+  color: red;
+}
+
 .App-title {
   font-size: 1.7em;
-  padding-top: 10px;
+  padding-top: 0vw;
   align-self: center;
   font-family: 'Raleway', sans-serif;
 }
 
 .App-intro {
   font-size: large;
+}
+
+.column {
+    float: left;
+}
+
+.left, .right {
+    width: 25%;
+}
+
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .Divider {
@@ -98,8 +127,17 @@
 }
 
 
-
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+@keyframes App-logo-spin-left {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes App-text-loop {
+  from {transform: translate3d(100vw, 0vw, 0vw); }
+  to {transform: translate3d(-100vw, 0vw, 0vw); }
 }

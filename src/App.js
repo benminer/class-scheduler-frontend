@@ -29,13 +29,21 @@ class App extends Component {
     this.state = {
       selectedClasses: [],
       count: 0,
+      searchText: '',
     }
   }
 
   countPlusOne = () => {
     var count = this.state.count;
     count++;
-    this.setState({count})
+    this.setState({count});
+  };
+
+  handleKeyPress = (event) => {
+    var textField = this.state.searchText;
+    textField += event.key;
+    
+    this.setState({searchText: textField});
   };
 
   componentWillMount () {
@@ -83,11 +91,12 @@ class App extends Component {
           <p className="App-text">"This is a load of bullshit ~ Oluwatito Ebiwonjumi"</p>
           <Header as='h4' className="SearchText"> Search for a class... </Header>
           <div className="SearchContainer">
-            <Search className="Search" class="ui action left icon input"/>
+            <Search className="Search" class="ui action left icon input" onKeyPress={this.handleKeyPress}/>
           </div>
           <div class="row">
             <div class="column"><button class="ui primary pink button" onClick={this.countPlusOne}>Save Schedule</button></div>
             <div class="column">{this.state.count}</div>
+            <div class="column">{this.state.searchText}</div>
           </div>
         </div>
       </div>

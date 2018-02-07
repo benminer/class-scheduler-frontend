@@ -10,21 +10,6 @@ import './App.css';
 class App extends Component {
   constructor(props) {
     super(props)
-    // const query = gql`
-    //   {
-    //     allCourses {
-    //       edges {
-    //         node {
-    //           crn
-    //           subjectId
-    //           title
-    //           begin
-    //           end
-    //         }
-    //       }
-    //     }
-    //   }`;
-
     this.state = {
       selectedClasses: [],
     }
@@ -42,23 +27,6 @@ class App extends Component {
     //   `
     // }).then(response => console.log(response.data.allCourses))
   }
-
-//   renderClasses({ data: { courses, refetch } }) {
-//   return (
-//     <div className="formButton">
-//       <Button className="button" size="lg" outline color="primary" onClick={() => refetch()}>
-//         Refresh
-//       </Button>
-//       <ul>
-//         {courses.map(course => (
-//           <li key={course.crn}>
-//             {course.title}
-//           </li>
-//         ))}
-//       </ul>
-//     </div>
-//   );
-// }
 
   render() {
     return (

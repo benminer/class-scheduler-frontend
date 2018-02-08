@@ -123,7 +123,18 @@
 
 .button {
   height: 50px;
-  width: 50%;
+  width: 100%;
+  background-color: white;
+  color: #142654;
+  border: 5px solid #142654;
+  border-radius: 12px;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+}
+
+.button:hover {
+    background-color: #142654 ;
+    color: white;
 }
 
 

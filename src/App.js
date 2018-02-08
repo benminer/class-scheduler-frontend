@@ -42,7 +42,7 @@ class App extends Component {
   handleKeyPress = (event) => {
     var textField = this.state.searchText;
     textField += event.key;
-    
+
     this.setState({searchText: textField});
   };
 
@@ -93,10 +93,10 @@ class App extends Component {
           <div className="SearchContainer">
             <Search className="Search" class="ui action left icon input" onKeyPress={this.handleKeyPress}/>
           </div>
-          <div class="row">
-            <div class="column"><button class="ui primary pink button" onClick={this.countPlusOne}>Save Schedule</button></div>
+          <div class="row after">
+            <div class="left"><button class="button hover" onClick={this.countPlusOne}>Save Schedule</button></div>
             <div class="column">{this.state.count}</div>
-            <div class="column">{this.state.searchText}</div>
+            <div class="right">{this.state.searchText}</div>
           </div>
         </div>
       </div>

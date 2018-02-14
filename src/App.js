@@ -5,8 +5,10 @@ import Select from 'react-select';
 import { graphql } from 'react-apollo';
 import curry from 'lodash/curry';
 import gql from 'graphql-tag';
-import { Button, Container, Header, Image, Divider, Search } from 'semantic-ui-react'
 import './App.css';
+import { Button, Container, Header, Image, Divider, Search } from 'semantic-ui-react'
+
+
 
 class App extends Component {
   constructor(props) {

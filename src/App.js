@@ -3,6 +3,7 @@ import Images  from './Themes/Images.js';
 import { Form, FormGroup, Label, Input, FormText } from 'reactstrap'
 import Select from 'react-select';
 import { graphql } from 'react-apollo';
+import curry from 'lodash/curry';
 import gql from 'graphql-tag';
 import { Button, Container, Header, Image, Divider, Search } from 'semantic-ui-react'
 import './App.css';
@@ -33,11 +34,13 @@ class App extends Component {
     }
   }
 
-  countPlusOne = () => {
+  const countPlusOne = () => {
     var count = this.state.count;
     count++;
     this.setState({count});
   };
+
+  // const countPlusOneF = this.setState => count => count = this.state.count
 
   handleKeyPress = (event) => {
     var textField = this.state.searchText;

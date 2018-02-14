@@ -34,7 +34,7 @@ class App extends Component {
     }
   }
 
-  const countPlusOne = () => {
+  countPlusOne = () => {
     var count = this.state.count;
     count++;
     this.setState({count});
@@ -44,7 +44,11 @@ class App extends Component {
 
   handleKeyPress = (event) => {
     var textField = this.state.searchText;
-    textField += event.key;
+    if (event.key == "8") {
+      textField = textField.slice(0, -1);
+    } else {
+      textField += event.key;
+    }
 
     this.setState({searchText: textField});
   };
@@ -91,15 +95,22 @@ class App extends Component {
         </div>
         <div className="Content">
           <Divider as='hr' className="Divider" horizontal/>
-          <p className="App-text">"This is a load of bullshit ~ Oluwatito Ebiwonjumi"</p>
+          <p className="App-text">"Message!!!"</p>
           <Header as='h4' className="SearchText"> Search for a class... </Header>
           <div className="SearchContainer">
             <Search className="Search" class="ui action left icon input" onKeyPress={this.handleKeyPress}/>
           </div>
           <div class="row after">
-            <div class="left"><button class="button hover" onClick={this.countPlusOne}>Save Schedule</button></div>
+            <div class="column">
+              <Button
+                basic
+                color='teal'
+                onClick={this.countPlusOne}>
+                Save Schedule
+              </Button>
+            </div>
             <div class="column">{this.state.count}</div>
-            <div class="right">{this.state.searchText}</div>
+            <div class="column">{this.state.searchText}</div>
           </div>
         </div>
       </div>

@@ -119,6 +119,9 @@ export default class Dropdown extends Component {
       ])),
     ]),
 
+    /** A dropdown menu can open to the left or to the right. */
+    direction: PropTypes.oneOf(['left', 'right']),
+
     /** A disabled dropdown menu or item does not allow user interaction. */
     disabled: PropTypes.bool,
 
@@ -342,9 +345,11 @@ export default class Dropdown extends Component {
 
     /** Current value or value array if multiple. Creates a controlled component. */
     value: PropTypes.oneOfType([
+      PropTypes.bool,
       PropTypes.string,
       PropTypes.number,
       PropTypes.arrayOf(PropTypes.oneOfType([
+        PropTypes.bool,
         PropTypes.string,
         PropTypes.number,
       ])),
@@ -352,6 +357,12 @@ export default class Dropdown extends Component {
 
     /** A dropdown can open upward. */
     upward: PropTypes.bool,
+
+    /**
+     * A dropdown will go to the last element when ArrowUp is pressed on the first,
+     * or go to the first when ArrowDown is pressed on the last( aka infinite selection )
+     */
+    wrapSelection: PropTypes.bool,
   }
 
   static defaultProps = {
@@ -367,6 +378,7 @@ export default class Dropdown extends Component {
     searchInput: 'text',
     selectOnBlur: true,
     selectOnNavigation: true,
+    wrapSelection: true,
   }
 
   static autoControlledProps = [
@@ -994,10 +1006,15 @@ export default class Dropdown extends Component {
     if (options === undefined || _.every(options, 'disabled')) return
 
     const lastIndex = options.length - 1
+    const { wrapSelection } = this.props
     // next is after last, wrap to beginning
     // next is before first, wrap to end
     let nextIndex = startIndex + offset
-    if (nextIndex > lastIndex) nextIndex = 0
+
+    // if 'wrapSelection' is set to false and selection is after last or before first, it just does not change
+    if (!wrapSelection && (nextIndex > lastIndex || nextIndex < 0)) {
+      nextIndex = startIndex
+    } else if (nextIndex > lastIndex) nextIndex = 0
     else if (nextIndex < 0) nextIndex = lastIndex
 
     if (options[nextIndex].disabled) {
@@ -1233,21 +1250,24 @@ export default class Dropdown extends Component {
   }
 
   renderMenu = () => {
-    const { children, header } = this.props
+    const { children, direction, header } = this.props
     const { open } = this.state
-    const menuClasses = open ? 'visible' : ''
     const ariaOptions = this.getDropdownMenuAriaOptions()
 
     // single menu child
     if (!childrenUtils.isNil(children)) {
       const menuChild = Children.only(children)
-      const className = cx(menuClasses, menuChild.props.className)
+      const className = cx(
+        direction,
+        useKeyOnly(open, 'visible'),
+        menuChild.props.className,
+      )
 
       return cloneElement(menuChild, { className, ...ariaOptions })
     }
 
     return (
-      <DropdownMenu {...ariaOptions} className={menuClasses}>
+      <DropdownMenu {...ariaOptions} direction={direction} open={open}>
         {DropdownHeader.create(header)}
         {this.renderOptions()}
       </DropdownMenu>

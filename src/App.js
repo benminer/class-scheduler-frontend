@@ -13,6 +13,7 @@ class App extends Component {
     super(props)
     this.state = {
       selectedClasses: [],
+      searchText: ''
     }
   }
 
@@ -28,6 +29,18 @@ class App extends Component {
     }).then(response => console.log(response.data.courses))
   }
 
+  handleKeyPress = (event) => {
+    var textField = this.state.searchText;
+    if (event.key == "8") {
+      textField = textField.slice(0, -1);
+    } else {
+      textField += event.key;
+    }
+
+    this.setState({ searchText: textField });
+    console.log(this.state.searchText)
+  };
+
   render() {
     return (
       <div className="App">
@@ -39,8 +52,8 @@ class App extends Component {
         <Divider as='hr' className="Divider" horizontal/>
         <Header as='h4' className="SearchText"> Search for a class... </Header>
         <div className="SearchContainer">
-          <Search className="Search" />
-        </div>
+            <Search className="Search" className="ui action left icon input" onKeyPress={this.handleKeyPress}/>
+          </div>
       </div>
     </div>
     );

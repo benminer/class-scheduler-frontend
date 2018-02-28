@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
-import Images  from './Themes/Images.js';
+import Images from './Themes/Images.js';
 import { Form, FormGroup, Label, Input, FormText } from 'reactstrap'
 import Select from 'react-select';
 import { graphql } from 'react-apollo';
 import gql from 'graphql-tag';
+import { client } from './Apollo/apollo'
 import { Button, Container, Header, Image, Divider, Search } from 'semantic-ui-react'
 import './App.css';
 
@@ -16,16 +17,15 @@ class App extends Component {
   }
 
   componentWillMount () {
-    // client.query({
-    //   query: gql`
-    //     query ClassQuery {
-    //       course(subject: "AET") {
-    //         crn
-    //         title
-    //       }
-    //     }
-    //   `
-    // }).then(response => console.log(response.data.allCourses))
+    client.query({
+      query: gql`
+        query ClassQuery {
+          courses {
+            title
+          }
+        }
+      `
+    }).then(response => console.log(response.data.courses))
   }
 
   render() {

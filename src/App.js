@@ -27,24 +27,9 @@ class App extends Component {
   // Appends the selected classses array
   // TODO: Make this work, currently having trouble indexing these courses.
   handleResultSelect = (e, { result }) => {
-    var courses = this.state.selectedCourses;
-    courses.push(result);
-    // We index here since the actual GraphQL objects are immutable,
-    // and we need an index for the Drag and Drop to work properly.
-    var index = -1;
-    const indexedCourses = courses.map(course => (
-      {
-      title: course.title,
-      section: course.section,
-      index: index+=1
-      }
-    ))
-
-    console.log(indexedCourses)
-    // console.log('indexed Courses');
-    // console.log(indexedCourses);
-    this.setState({ selectedCourses: indexedCourses }) 
-    // this.setState({ selectedCourses: courses }) 
+    var { selectedCourses } = this.state;
+    selectedCourses.push(result);
+    this.setState({ selectedCourses }) 
   }
 
   handleSearchChange =(e, { value }) => {
@@ -55,7 +40,7 @@ class App extends Component {
         this.setState({
           isLoading: false,
           // Only filter if we have input TO filter
-          results: this.state.value !== null ? courses.filter(course => 
+          results: this.state.value !== null && courses.length > 0 ? courses.filter(course => 
             course.title.toLowerCase().includes(
             this.state.value.toLowerCase()
           ))
@@ -97,7 +82,17 @@ class App extends Component {
 
   render() {
     const { isLoading, results, value, selectedCourses } = this.state;
-    console.log(selectedCourses)
+    // We index here since the actual GraphQL objects are immutable,
+    // and we need an index for the Drag and Drop to work properly.
+    var index = -1;
+    const indexedCourses = selectedCourses.map(course => (
+      {
+      title: course.title,
+      section: course.section,
+      index: index+=1
+      }
+    ))
+
     return (
       <div className="App">
         <StyledHeader>
@@ -143,9 +138,10 @@ class App extends Component {
                       style={{background: 'transparent', padding: 10, width: 250, borderColor: '#142753'}}
                       {...provided.droppableProps}
                     >
-                    {selectedCourses.map((course, section) => 
+                    {indexedCourses.map((course) =>
                     (
-                      <Draggable key={section} draggableId={section} index type='Course'>
+                      console.log(index),
+                      <Draggable key={course.section} draggableId={course.section} index={course.index} type='Course'>
                       {(provided, snapshot) => (
                         <div
                           ref={provided.innerRef}

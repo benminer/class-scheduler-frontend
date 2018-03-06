@@ -1,69 +1,188 @@
 import React, { Component } from 'react';
-import Images from './Themes/Images.js';
-import { Form, FormGroup, Label, Input, FormText } from 'reactstrap'
-import Select from 'react-select';
 import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { client } from './Apollo/apollo'
-import { Button, Container, Header, Image, Divider, Search, Dropdown } from 'semantic-ui-react'
+import { View, Text } from 'react-native';
+import CourseQuery from './Queries/CourseQuery';
+import { Divider, Search, Grid } from 'semantic-ui-react';
+import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './App.css';
-import Subjects from './Subjects.js';
-import styled from 'styled-components/native';
+import HeaderText from './Components/HeaderText';
+import StyledHeader from './Components/StyledHeader';
 
-const Center = styled.View`
-  flex: 1;
-  justify-content: center;
-  align-self: center;
-  align-items: center;
-`;
+const BelmontBlue = '#142753';
 
 class App extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedClasses: [],
-      searchText: ''
+      selectedCourses: [],
+      results: [],
+      value: '',
+      isLoading: false
     }
+    this.onDragEnd = this.onDragEnd.bind(this);
   }
 
-  componentWillMount () {
-  
+  resetComponent = () => this.setState({ isLoading: false, results: [], class: '' });
+
+  // Appends the selected classses array
+  // TODO: Make this work, currently having trouble indexing these courses.
+  handleResultSelect = (e, { result }) => {
+    var courses = this.state.selectedCourses;
+    courses.push(result);
+    // We index here since the actual GraphQL objects are immutable,
+    // and we need an index for the Drag and Drop to work properly.
+    var index = -1;
+    const indexedCourses = courses.map(course => (
+      {
+      title: course.title,
+      section: course.section,
+      index: index+=1
+      }
+    ))
+
+    console.log(indexedCourses)
+    // console.log('indexed Courses');
+    // console.log(indexedCourses);
+    this.setState({ selectedCourses: indexedCourses }) 
+    // this.setState({ selectedCourses: courses }) 
   }
 
-  handleKeyPress = (event) => {
-    var textField = this.state.searchText;
-    if (event.key == "8") {
-      textField = textField.slice(0, -1);
+  handleSearchChange =(e, { value }) => {
+    this.setState({ isLoading: true, value })
+    const { courses } = this.props.data;
+      setTimeout(() => {
+        if (this.state.value.length < 1) return this.resetComponent()
+        this.setState({
+          isLoading: false,
+          // Only filter if we have input TO filter
+          results: this.state.value !== null ? courses.filter(course => 
+            course.title.toLowerCase().includes(
+            this.state.value.toLowerCase()
+          ))
+          : null
+        }) 
+      }, 500)
+  }
+
+  onDragEnd (result) {
+    console.log(result)
+    const { selectedCourses } = this.state;
+    // If the item was dragged off the list, we assume the 
+    // user wants to remove it. 
+    if (!result.destination) {
+      var removedCourse = selectedCourses.splice(result.source.index, 1);
+      this.setState({ selectedCourses })
+    // If the user cancelled mid-drag, do nothing.
+    } else if (result.reason === 'CANCEL') {
+      return;
+    // This is the condition where the user meant to reorder.
     } else {
-      textField += event.key;
+      // Get the dragged item's index and then its destination index
+      // and replace it at that location
+      console
+      var reorderedCourses = this.reorder(selectedCourses, result.source.index, result.destination.index)
+      this.setState({ selectedCourses: reorderedCourses })
     }
+  }
 
-    this.setState({ searchText: textField });
-    console.log(this.state.searchText)
-  };
+  reorder = (courses, source, destination) => {
+    // Replace source course at destination it was dragged to
+    console.log('reorder')
+    var itemToMove = courses.splice(source, 1);
+    courses.splice(destination, 0, itemToMove[0]) ;
+    console.log(courses)
+    // Return the new reordered array
+    return courses
+  }
 
   render() {
-
-    console.log(Subjects)
+    const { isLoading, results, value, selectedCourses } = this.state;
+    console.log(selectedCourses)
     return (
       <div className="App">
-      <div className="AppContent">
-        <Image src={Images.belmont} as='img' className="App-logo"/>
-        <Header as='h1' className="App-header">Class Scheduler </Header>
+        <StyledHeader>
+          <HeaderText>
+            Bruin Scheduler
+          </HeaderText>
+        </StyledHeader>
+        <View style={{ flex: 1, marginTop: 20}}>
+          <Text style={{ fontFamily: 'Montserrat', fontSize: 20, textAlign: 'center', flex: 1, top: 50}}>
+              Search for class, add it to your selection, then prioritize by dragging courses.
+          </Text>
+          <Text style={{ fontFamily: 'Montserrat', fontSize: 18, textAlign: 'center', flex: 1, top: 50}}>
+              Once submitted, a schedule will be generated based on your course priority.
+          </Text>
+        </View>
+        <Divider section/> 
+        <Grid columns={3} divided padded={'vertically'} centered>
+          <Grid.Column>
+            <View style={{ paddingLeft: 50, alignItems: 'center'}}>
+              <Search className="ui action left icon input" 
+                        loading={isLoading}
+                        onResultSelect={this.handleResultSelect}
+                        onSearchChange={this.handleSearchChange}
+                        results={results}
+                        value={value}
+                        size={window.innerWidth <= 400 ? 'small' : 'massive'}
+                        fluid={true}
+                        {...this.props}
+                />
+              </View>
+        </Grid.Column>
+        <Grid.Column>
+            <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}>
+              <View style={{ alignItems: 'center', alignSelf: 'center',
+                            justifyContent: 'center'}}>
+                <DragDropContext
+                  onDragEnd={this.onDragEnd}
+                >
+                <Droppable direction='vertical' droppableId="droppable">
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef  }
+                      style={{background: 'transparent', padding: 10, width: 250, borderColor: '#142753'}}
+                      {...provided.droppableProps}
+                    >
+                    {selectedCourses.map((course, section) => 
+                    (
+                      <Draggable key={section} draggableId={section} index type='Course'>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          style={{ backgroundColor: snapshot.isDraggingOver ? 'blue' : 'white'}}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          
+                        >
+                          <View style={{ margin: 10,
+                                         backgroundColor: BelmontBlue, 
+                                          borderRadius: 40,
+                                          shadowColor: 'black',
+                                          shadowOffset: { width: 0, height: 10},
+                                          shadowOpacity: 0.2,
+                                          shadowRadius: 10 }}>
+                            <Text style={{ fontSize: 18, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', padding: 20}}>
+                              {course.title}
+                            </Text>
+                          </View>
+                        </div>
+                      )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                    </div>
+                    )}
+                  </Droppable>
+                </DragDropContext>
+              </View>
+            </View>
+          </Grid.Column>
+          <Grid.Column>
+          </Grid.Column>
+          </Grid>
       </div>
-      <div className="Content">
-          <Divider as='hr' className="Divider" horizontal/>
-        <Center>
-         <Dropdown placeholder='Select a section...' fluid search selection options={Subjects} />
-        </Center>
-        <Header as='h4' className="SearchText"> Search for a class... </Header>
-        <div className="SearchContainer">
-            <Search className="Search" className="ui action left icon input" onKeyPress={this.handleKeyPress}/>
-          </div>
-      </div>
-    </div>
     );
   }
 }
 
-export default App;
+export default graphql(CourseQuery)(App);

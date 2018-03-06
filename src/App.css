@@ -1,6 +1,5 @@
 .App {
   text-align: center;
-  background: #FFFFFFF;
   height: 100%;
 }
 
@@ -36,8 +35,6 @@
 
 .Divider {
   color: black;
-  /* margin: 50px; */
-  /* width: 100px; */
 }
 
 .Content {
@@ -58,8 +55,8 @@
   align-content: center;
   align-self: center;
   justify-content: center;
-  margin: 30px;
-  /* width: 300px; */
+  margin: 80px;
+  width: 300px;
 }
 
 .Search {

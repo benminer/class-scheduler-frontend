@@ -48,10 +48,9 @@ class App extends Component {
               return (
                 course.title.toLowerCase().includes(
                   this.state.value.toLowerCase()
-                )
-                ||
-                subjectSection.includes(
-                  this.state.value
+                ) ||
+                subjectSection.toLowerCase().includes(
+                  this.state.value.toLowerCase()
                 )
             )})
             : null

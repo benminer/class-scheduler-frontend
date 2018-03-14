@@ -35,7 +35,7 @@ class App extends Component {
   handleSearchChange = (e, { value }) => {
     this.setState({ isLoading: true, value })
     const { courses } = this.props.data;
-    // console.log(courses);
+    console.log(courses);
       setTimeout(() => {
         if (this.state.value.length < 1) return this.resetComponent()
         if (courses.length > 0) {
@@ -45,14 +45,15 @@ class App extends Component {
             results: this.state.value !== null ? courses.filter(course => {
               var slicedSection = course.section.slice(0, 4);
               const subjectSection = course.subjectId + ' ' + slicedSection;
+              return (
               course.title.toLowerCase().includes(
                 this.state.value.toLowerCase()
               )
-              // ) ||
-              // subjectSection.includes(
-              //   this.state.value
-              // )
-            })
+               ||
+              subjectSection.includes(
+                this.state.value
+              )
+            )})
             : null
           }) 
         }

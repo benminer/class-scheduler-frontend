@@ -25,7 +25,6 @@ class App extends Component {
   resetComponent = () => this.setState({ isLoading: false, results: [], class: '' });
 
   // Appends the selected classses array
-  // TODO: Make this work, currently having trouble indexing these courses.
   handleResultSelect = (e, { result }) => {
     var { selectedCourses } = this.state;
     selectedCourses.push(result);
@@ -63,18 +62,18 @@ class App extends Component {
   onDragEnd (result) {
     console.log(result)
     const { selectedCourses } = this.state;
+    // If the user presses cancel mid-drag, we get a 'CANCEL' as the reason.
+    if (result.reason === 'CANCEL') {
+      return;
     // If the item was dragged off the list, we assume the 
-    // user wants to remove it. 
-    if (!result.destination) {
+    // user wants to remove it.
+    } else if (!result.destination) {
       var removedCourse = selectedCourses.splice(result.source.index, 1);
       this.setState({ selectedCourses })
     // If the user cancelled mid-drag, do nothing.
-    } else if (result.reason === 'CANCEL') {
-      return;
-    // This is the condition where the user meant to reorder.
     } else {
       // Get the dragged item's index and then its destination index
-      // and replace it at that location
+      // and replace it at that locatio n
       console
       var reorderedCourses = this.reorder(selectedCourses, result.source.index, result.destination.index)
       this.setState({ selectedCourses: reorderedCourses })
@@ -161,7 +160,7 @@ class App extends Component {
                           {...provided.dragHandleProps}
                           
                         >
-                          <View style={{ margin: 10,
+                          <View style={{  margin: 10,
                                           backgroundColor: BelmontBlue, 
                                           borderRadius: 40,
                                           shadowColor: 'black',

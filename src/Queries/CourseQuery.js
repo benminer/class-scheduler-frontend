@@ -6,6 +6,7 @@ query CourseQuery {
   courses(uniqueTitle: true) {
     title
     section
+    subjectId
    }
   }
 `;

@@ -32,21 +32,32 @@ class App extends Component {
     this.setState({ selectedCourses }) 
   }
 
-  handleSearchChange =(e, { value }) => {
+  handleSearchChange = (e, { value }) => {
     this.setState({ isLoading: true, value })
     const { courses } = this.props.data;
+    // console.log(courses);
       setTimeout(() => {
         if (this.state.value.length < 1) return this.resetComponent()
-        this.setState({
-          isLoading: false,
-          // Only filter if we have input TO filter
-          results: this.state.value !== null && courses.length > 0 ? courses.filter(course => 
-            course.title.toLowerCase().includes(
-            this.state.value.toLowerCase()
-          ))
-          : null
-        }) 
-      }, 500)
+        if (courses.length > 0) {
+          this.setState({
+            isLoading: false,
+            // Only filter if we have input TO filter
+            results: this.state.value !== null ? courses.filter(course => {
+              var slicedSection = course.section.slice(0, 4);
+              const subjectSection = course.subjectId + ' ' + slicedSection;
+              course.title.toLowerCase().includes(
+                this.state.value.toLowerCase()
+              )
+              // ) ||
+              // subjectSection.includes(
+              //   this.state.value
+              // )
+            })
+            : null
+          }) 
+        }
+        }, 500)
+    
   }
 
   onDragEnd (result) {
@@ -125,12 +136,12 @@ class App extends Component {
               </View>
         </Grid.Column>
         <Grid.Column>
-            <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}>
-              <View style={{ alignItems: 'center', alignSelf: 'center',
+          <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}>
+            <View style={{ alignItems: 'center', alignSelf: 'center',
                             justifyContent: 'center'}}>
-                <DragDropContext
-                  onDragEnd={this.onDragEnd}
-                >
+              <DragDropContext
+                onDragEnd={this.onDragEnd}
+              >
                 <Droppable direction='vertical' droppableId="droppable">
                   {(provided, snapshot) => (
                     <div
@@ -151,7 +162,7 @@ class App extends Component {
                           
                         >
                           <View style={{ margin: 10,
-                                         backgroundColor: BelmontBlue, 
+                                          backgroundColor: BelmontBlue, 
                                           borderRadius: 40,
                                           shadowColor: 'black',
                                           shadowOffset: { width: 0, height: 10},
@@ -175,7 +186,7 @@ class App extends Component {
           </Grid.Column>
           <Grid.Column>
           </Grid.Column>
-          </Grid>
+        </Grid>
       </div>
     );
   }

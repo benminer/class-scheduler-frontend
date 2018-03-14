@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
-import { graphql, compose } from 'react-apollo';
-import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
 import { View, Text } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
-import { Divider, Search, Grid, Button } from 'semantic-ui-react';
+import { Divider, Search, Grid } from 'semantic-ui-react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './App.css';
 import HeaderText from './Components/HeaderText';
@@ -21,7 +20,6 @@ class App extends Component {
       isLoading: false
     }
     this.onDragEnd = this.onDragEnd.bind(this);
-    this.createSchedule = this.createSchedule.bind(this);
   }
 
   resetComponent = () => this.setState({ isLoading: false, results: [], class: '' });
@@ -93,25 +91,6 @@ class App extends Component {
     return courses
   }
 
-  createSchedule(event) {
-    const course_titles = this.state.selectedCourses.map((course) => {
-      return course.title;
-    });
-    this.props.mutate({
-      variables: {
-        courses: {
-          "courseTitles": course_titles
-        }
-      }
-    })
-      .then(({data}) => {
-        console.log(data)
-      })
-      .catch((error) => {
-        console.log(error)
-      })
-  }
-
   render() {
     const { isLoading, results, value, selectedCourses } = this.state;
     // We index here since the actual GraphQL objects are immutable,
@@ -129,7 +108,7 @@ class App extends Component {
       <div className="App">
         <StyledHeader>
           <HeaderText>
-            Bruin Scheduler <em>Beta</em>
+            Bruin Scheduler
           </HeaderText>
         </StyledHeader>
         <View style={{ flex: 1, marginTop: 20}}>
@@ -206,9 +185,6 @@ class App extends Component {
             </View>
           </Grid.Column>
           <Grid.Column>
-            <Button onClick={this.createSchedule}>
-              Create Schedule
-            </Button>
           </Grid.Column>
         </Grid>
       </div>
@@ -216,19 +192,4 @@ class App extends Component {
   }
 }
 
-const makeSchedule = gql`
-mutation MakeSchedule($courses: CourseListInput!) {
-  makeSchedule (courseInput: $courses) {
-    schedule {
-      title
-      roomDayAndTime {
-        day
-        begin
-        end
-      }
-    }
-  }
-}
-`
-
-export default compose(graphql(makeSchedule), graphql(CourseQuery))(App);
+export default graphql(CourseQuery)(App);

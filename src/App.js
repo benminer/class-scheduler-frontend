@@ -46,13 +46,13 @@ class App extends Component {
               var slicedSection = course.section.slice(0, 4);
               const subjectSection = course.subjectId + ' ' + slicedSection;
               return (
-              course.title.toLowerCase().includes(
-                this.state.value.toLowerCase()
-              )
-               ||
-              subjectSection.includes(
-                this.state.value
-              )
+                course.title.toLowerCase().includes(
+                  this.state.value.toLowerCase()
+                )
+                ||
+                subjectSection.includes(
+                  this.state.value
+                )
             )})
             : null
           }) 

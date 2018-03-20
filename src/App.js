@@ -3,7 +3,7 @@ import {graphql, compose} from 'react-apollo';
 import gql from 'graphql-tag';
 import {View, Text} from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
-import {Divider, Search, Grid, Button, Card} from 'semantic-ui-react';
+import {Divider, Search, Grid, Button} from 'semantic-ui-react';
 import {DragDropContext, Draggable, Droppable} from 'react-beautiful-dnd';
 import './App.css';
 import HeaderText from './Components/HeaderText';
@@ -20,9 +20,10 @@ class App extends Component {
       value: '',
       schedule: [],
       isLoading: false
-    }
+    };
     this.onDragEnd = this.onDragEnd.bind(this);
     this.createSchedule = this.createSchedule.bind(this);
+    this.renderSchedule = this.renderSchedule.bind(this);
   }
 
   resetComponent = () => this.setState({isLoading: false, results: [], class: ''});
@@ -95,6 +96,27 @@ class App extends Component {
     return courses
   }
 
+  renderSchedule() {
+    console.log(this.state.schedule);
+    return this.state.schedule.map((course) => {
+      return (
+        <View>
+          <Text>
+            {course.title}
+          </Text>
+          <Text>
+            CRN: {course.crn}
+          </Text>
+          {
+            course.roomDayAndTime.map((time) => {
+              return <Text>{time.day}, {time.begin}, {time.end}</Text>
+            })
+          }
+        </View>
+      );
+    });
+  }
+
   createSchedule(event) {
     const course_titles = this.state.selectedCourses.map((course) =>
       course.title
@@ -107,7 +129,10 @@ class App extends Component {
       }
     })
       .then((result) => {
-          console.log(result.data.makeSchedule.schedule);
+          const schedule = result.data.makeSchedule.schedule;
+          this.setState({
+            schedule
+          })
         }
       )
       .catch((error) => {
@@ -224,22 +249,7 @@ class App extends Component {
             <Button onClick={this.createSchedule}>
               Create Schedule
             </Button>
-            {schedule.map((course) =>
-              (
-                <Card>
-                  <Card.Content>
-                    <Card.Title>
-                      {course.title}
-                    </Card.Title>
-                    <Card.Description>
-                      {course.roomDayAndTime.map((time) => (
-                        <Text>{time.day}, {time.begin}, {time.end}</Text>
-                      ))}
-                    </Card.Description>
-                  </Card.Content>
-                </Card>
-              ))
-            }
+            {this.renderSchedule()}
           </Grid.Column>
         </Grid>
       </div>
@@ -252,6 +262,7 @@ mutation MakeSchedule($courses: CourseListInput!) {
   makeSchedule (courseInput: $courses) {
     schedule {
       title
+      crn
       roomDayAndTime {
         day
         begin

@@ -235,9 +235,11 @@ renderSchedule() {
             </View>
           </Grid.Column>
           <Grid.Column>
-            <Button onClick={this.createSchedule}>
-                  Create Schedule
-            </Button>
+            <View style={{ justifyContent: 'center', alignItems: 'center'}}>
+              <Button onClick={this.createSchedule}>
+                    Create Schedule
+              </Button>
+            </View>
             {this.renderSchedule()}
           </Grid.Column>
         </Grid>

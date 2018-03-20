@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 import { View, Text } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
-import { Divider, Search, Grid } from 'semantic-ui-react';
+import ScheduleMutation from './Queries/ScheduleMutation';
+import { Divider, Search, Grid, Button } from 'semantic-ui-react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './App.css';
 import HeaderText from './Components/HeaderText';
@@ -15,11 +16,13 @@ class App extends Component {
     super(props)
     this.state = {
       selectedCourses: [],
+      schedule: [],
       results: [],
       value: '',
       isLoading: false
     }
     this.onDragEnd = this.onDragEnd.bind(this);
+    this.createSchedule = this.createSchedule.bind(this);
   }
 
   resetComponent = () => this.setState({ isLoading: false, results: [], class: '' });
@@ -43,13 +46,15 @@ class App extends Component {
             // Only filter if we have input TO filter
             results: this.state.value !== null ? courses.filter(course => {
               var slicedSection = course.section.slice(0, 4);
-              const subjectSection = course.subjectId + ' ' + slicedSection;
+              const subjectSection = course.subjectId + slicedSection;
+              var split = this.state.value.split(' ').join('');
+              console.log(split);
               return (
                 course.title.toLowerCase().includes(
                   this.state.value.toLowerCase()
                 ) ||
                 subjectSection.toLowerCase().includes(
-                  this.state.value.toLowerCase()
+                  split.toLowerCase()
                 )
             )})
             : null
@@ -60,7 +65,6 @@ class App extends Component {
   }
 
   onDragEnd (result) {
-    console.log(result)
     const { selectedCourses } = this.state;
     // If the user presses cancel mid-drag, we get a 'CANCEL' as the reason.
     if (result.reason === 'CANCEL') {
@@ -74,7 +78,6 @@ class App extends Component {
     } else {
       // Get the dragged item's index and then its destination index
       // and replace it at that locatio n
-      console
       var reorderedCourses = this.reorder(selectedCourses, result.source.index, result.destination.index)
       this.setState({ selectedCourses: reorderedCourses })
     }
@@ -82,12 +85,53 @@ class App extends Component {
 
   reorder = (courses, source, destination) => {
     // Replace source course at destination it was dragged to
-    console.log('reorder')
     var itemToMove = courses.splice(source, 1);
     courses.splice(destination, 0, itemToMove[0]) ;
-    console.log(courses)
     // Return the new reordered array
     return courses
+  }
+
+renderSchedule() {
+    return this.state.schedule.map((course) => {
+      return (
+        <View>
+          <Text>
+            {course.title}
+          </Text>
+          <Text>
+            CRN: {course.crn}
+          </Text>
+          {
+            course.roomDayAndTime.map((time) => {
+              return <Text>{time.day}, {time.begin}, {time.end}</Text>
+            })
+          }
+        </View>
+      );
+    });
+  }
+
+  createSchedule() {
+    const course_titles = this.state.selectedCourses.map((course) =>
+      course.title
+    );
+    this.props.mutate({
+      variables: {
+        courses: {
+          "courseTitles": course_titles
+        }
+      }
+    })
+      .then((result) => {
+          const schedule = result.data.makeSchedule.schedule;
+          this.setState({
+            schedule
+          })
+        }
+      )
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   render() {
@@ -95,13 +139,17 @@ class App extends Component {
     // We index here since the actual GraphQL objects are immutable,
     // and we need an index for the Drag and Drop to work properly.
     var index = -1;
-    const indexedCourses = selectedCourses.map(course => (
-      {
-      title: course.title,
-      section: course.section,
-      index: index+=1
-      }
-    ))
+    const indexedCourses = selectedCourses.map(course => {
+      var slicedSection = course.section.slice(0, 4);
+      const subjectSection = course.subjectId + ' ' + slicedSection;
+      return (
+        {
+        title: course.title,
+        section: subjectSection,
+        index: index+=1
+        }
+      )
+    })
 
     return (
       <div className="App">
@@ -167,8 +215,11 @@ class App extends Component {
                                           shadowOffset: { width: 0, height: 10},
                                           shadowOpacity: 0.2,
                                           shadowRadius: 10 }}>
-                            <Text style={{ fontSize: 18, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', padding: 20}}>
+                            <Text style={{ fontSize: 18, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', paddingTop: 20, paddingHorizontal: 15}}>
                               {course.title}
+                            </Text>
+                            <Text style={{ fontSize: 15, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', paddingBottom: 10 }}>
+                              {course.section}
                             </Text>
                           </View>
                         </div>
@@ -184,6 +235,10 @@ class App extends Component {
             </View>
           </Grid.Column>
           <Grid.Column>
+            <Button onClick={this.createSchedule}>
+                  Create Schedule
+            </Button>
+            {this.renderSchedule()}
           </Grid.Column>
         </Grid>
       </div>
@@ -191,4 +246,4 @@ class App extends Component {
   }
 }
 
-export default graphql(CourseQuery)(App);
+export default compose(graphql(ScheduleMutation), graphql(CourseQuery))(App);

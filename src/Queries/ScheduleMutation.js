@@ -6,6 +6,9 @@ mutation MakeSchedule($courses: CourseListInput!) {
     schedule {
       title
       crn
+      section
+      instructor
+      subjectId
       roomDayAndTime {
         day
         begin

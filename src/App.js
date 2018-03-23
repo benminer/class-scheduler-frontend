@@ -3,7 +3,7 @@ import { graphql, compose } from 'react-apollo';
 import { View, Text } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
 import ScheduleMutation from './Queries/ScheduleMutation';
-import { Divider, Search, Grid, Button } from 'semantic-ui-react';
+import { Divider, Search, Grid, Button, Card } from 'semantic-ui-react';
 import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './App.css';
 import HeaderText from './Components/HeaderText';
@@ -91,25 +91,73 @@ class App extends Component {
     return courses
   }
 
-renderSchedule() {
-    return this.state.schedule.map((course) => {
-      return (
-        <View>
-          <Text>
-            {course.title}
-          </Text>
-          <Text>
-            CRN: {course.crn}
-          </Text>
-          {
-            course.roomDayAndTime.map((time) => {
-              return <Text>{time.day}, {time.begin}, {time.end}</Text>
-            })
+renderSchedule () {
+  return (
+    <Card.Group>
+      {this.state.schedule.map((course) => (
+        <Card style={{padding: 20}}>
+          <Card.Header content={course.title} />
+          <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
+          <Card.Meta> {course.instructor} </Card.Meta>
+          { course.roomDayAndTime.map((time) => {
+            console.log('day and time map', time);
+            return (
+            <Card.Description> {this.formatDate(time.day)} from {this.formatTimes(time.begin)} to {this.formatTimes(time.end)} </Card.Description>
+            )
+          })
           }
-        </View>
-      );
-    });
+        </Card>
+      )) }
+    </Card.Group>
+    ) 
   }
+
+  // course.roomDayAndTime.map((time) => {
+  //   return <Text>{time.day}, {time.begin}, {time.end}</Text>
+
+  formatDate = (thisDay) => {
+    switch(thisDay) {
+      case ('M'):
+        return 'Monday'
+        break;
+      case ('T'):
+        return 'Tuesday'
+        break;
+      case ('W'):
+        return 'Wednesday'
+        break;
+      case('R'):
+        return 'Thursday'
+        break;
+      case ('F'):
+        return 'Friday'
+        break;
+      case ('S'):
+        return 'Saturday'
+        break;
+    }
+  }
+
+  formatTimes = (thisTime) => {
+    var time = thisTime.slice(0,5);
+    var hour = time.slice(0,2);
+    var minutes = time.slice(3,5);
+    console.log(time, hour, minutes);
+    var dd = "AM";
+  
+    if (hour > 12) {
+      console.log('if has been hit')
+      hour = hour - 12;
+      dd = "PM";
+    } else if (hour == 12) {
+      dd = "PM"
+    }
+    
+    return hour + ':' + minutes + ' ' + dd
+
+  }
+
+  
 
   createSchedule() {
     const course_titles = this.state.selectedCourses.map((course) =>
@@ -239,8 +287,10 @@ renderSchedule() {
               <Button onClick={this.createSchedule}>
                     Create Schedule
               </Button>
-            </View>
-            {this.renderSchedule()}
+              <View style={{ flex: 1, marginTop: 50, alignItems: 'center', alignSelf: 'center', justifyContent: 'center'}}>
+              {this.renderSchedule()}
+              </View>
+            </View> 
           </Grid.Column>
         </Grid>
       </div>

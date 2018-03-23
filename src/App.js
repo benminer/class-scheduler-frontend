@@ -93,7 +93,7 @@ class App extends Component {
 
 renderSchedule () {
   return (
-    <Card.Group>
+    <Card.Group style={{justifyContent: 'center'}}>
       {this.state.schedule.map((course) => (
         <Card style={{padding: 20}}>
           <Card.Header content={course.title} />
@@ -231,10 +231,10 @@ renderSchedule () {
               </View>
         </Grid.Column>
         <Grid.Column>
-          <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}>
+          {/* <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}> */}
             <View style={{ alignItems: 'center', alignSelf: 'center',
                             justifyContent: 'center'}}>
-              <DragDropContext
+              {/* <DragDropContext
                 onDragEnd={this.onDragEnd}
               >
                 <Droppable direction='vertical' droppableId="droppable">
@@ -278,9 +278,17 @@ renderSchedule () {
                     </div>
                     )}
                   </Droppable>
-                </DragDropContext>
+                </DragDropContext> */}
+                <Card.Group style={{justifyContent: 'center'}}>
+                  { indexedCourses.map((course) => (
+                    <Card style={{padding: 20}}>
+                      <Card.Header content={course.title}/>
+                      <Card.Meta> {course.section} </Card.Meta>
+                    </Card>
+                  )) }
+                </Card.Group>
               </View>
-            </View>
+            {/* </View> */}
           </Grid.Column>
           <Grid.Column>
             <View style={{ justifyContent: 'center', alignItems: 'center'}}>

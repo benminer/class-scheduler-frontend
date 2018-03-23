@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { graphql, compose } from 'react-apollo';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
 import ScheduleMutation from './Queries/ScheduleMutation';
 import { Divider, Search, Grid, Button, Card } from 'semantic-ui-react';
@@ -10,6 +10,19 @@ import HeaderText from './Components/HeaderText';
 import StyledHeader from './Components/StyledHeader';
 
 const BelmontBlue = '#142753';
+
+const RemoveButton = props => {
+
+  return (
+    <View style={{ backgroundColor: BelmontBlue, borderRadius: 30, flex: 1, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}>
+      <TouchableOpacity onPress={() => props.onPress(props.index)} style={{ alignContent: 'center', alignSelf: 'center', justifyContent: 'center'}}>
+        <Text style={{ textAlign: 'center', padding: 15, color: 'white'}}>
+          Remove 
+        </Text>
+      </TouchableOpacity> 
+    </View>
+  )   
+}
 
 class App extends Component {
   constructor(props) {
@@ -157,6 +170,13 @@ renderSchedule () {
 
   }
 
+
+  removeCourse = (index) => {
+    var { selectedCourses } = this.state;
+    selectedCourses.splice(index, 1);
+    console.log(selectedCourses[index], index, 'Remove Pressed')
+    this.setState({ selectedCourses });
+  };
   
 
   createSchedule() {
@@ -231,10 +251,9 @@ renderSchedule () {
               </View>
         </Grid.Column>
         <Grid.Column>
-          {/* <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}> */}
             <View style={{ alignItems: 'center', alignSelf: 'center',
                             justifyContent: 'center'}}>
-              <DragDropContext
+              {/* <DragDropContext
                 onDragEnd={this.onDragEnd}
               >
                 <Droppable direction='vertical' droppableId="droppable">
@@ -278,17 +297,22 @@ renderSchedule () {
                     </div>
                     )}
                   </Droppable>
-                </DragDropContext>
-                {/* <Card.Group style={{justifyContent: 'center'}}>
+                </DragDropContext> */}
+                <Card.Group style={{justifyContent: 'center'}}>
                   { indexedCourses.map((course) => (
-                    <Card style={{padding: 20}}>
-                      <Card.Header content={course.title}/>
-                      <Card.Meta> {course.section} </Card.Meta>
-                    </Card>
+                    <View style={{justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30}}>
+                      <Card style={{padding: 20}}>
+                        <Card.Header content={course.title}/>
+                        <Card.Meta> {course.section} </Card.Meta>
+                      </Card>
+                      {/* <Button onClick={(course) => this.removeCouse}>
+                        Remove {course.title}
+                      </Button> */}
+                      <RemoveButton title={course.title} onPress={this.removeCourse} index={course.index}/>
+                    </View>
                   )) }
-                </Card.Group> */}
+                </Card.Group>
               </View>
-            {/* </View> */}
           </Grid.Column>
           <Grid.Column>
             <View style={{ justifyContent: 'center', alignItems: 'center'}}>

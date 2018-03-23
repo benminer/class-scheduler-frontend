@@ -208,10 +208,10 @@ renderSchedule () {
         </StyledHeader>
         <View style={{ flex: 1, marginTop: 20}}>
           <Text style={{ fontFamily: 'Montserrat', fontSize: 20, textAlign: 'center', flex: 1, top: 50}}>
-              Search for class, add it to your selection, then prioritize by dragging courses.
+              Search for class, add it to your selection.
           </Text>
           <Text style={{ fontFamily: 'Montserrat', fontSize: 18, textAlign: 'center', flex: 1, top: 50}}>
-              Once submitted, a schedule will be generated based on your course priority.
+              Once submitted, a schedule will be generated.
           </Text>
         </View>
         <Divider section/> 

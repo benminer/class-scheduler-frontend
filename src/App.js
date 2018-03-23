@@ -4,7 +4,6 @@ import { View, Text } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
 import ScheduleMutation from './Queries/ScheduleMutation';
 import { Divider, Search, Grid, Button, Card } from 'semantic-ui-react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './App.css';
 import HeaderText from './Components/HeaderText';
 import StyledHeader from './Components/StyledHeader';
@@ -231,54 +230,8 @@ renderSchedule () {
               </View>
         </Grid.Column>
         <Grid.Column>
-          {/* <View style={{ alignSelf: 'flex-end', alignItems: 'flex-end', justifyContent: 'center'}}> */}
             <View style={{ alignItems: 'center', alignSelf: 'center',
                             justifyContent: 'center'}}>
-              {/* <DragDropContext
-                onDragEnd={this.onDragEnd}
-              >
-                <Droppable direction='vertical' droppableId="droppable">
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef  }
-                      style={{background: 'transparent', padding: 10, width: 250, borderColor: '#142753'}}
-                      {...provided.droppableProps}
-                    >
-                    {indexedCourses.map((course) =>
-                    (
-                      console.log(index),
-                      <Draggable key={course.section} draggableId={course.section} index={course.index} type='Course'>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          style={{ backgroundColor: snapshot.isDraggingOver ? 'blue' : 'white'}}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          
-                        >
-                          <View style={{  margin: 10,
-                                          backgroundColor: BelmontBlue, 
-                                          borderRadius: 40,
-                                          shadowColor: 'black',
-                                          shadowOffset: { width: 0, height: 10},
-                                          shadowOpacity: 0.2,
-                                          shadowRadius: 10 }}>
-                            <Text style={{ fontSize: 18, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', paddingTop: 20, paddingHorizontal: 15}}>
-                              {course.title}
-                            </Text>
-                            <Text style={{ fontSize: 15, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', paddingBottom: 10 }}>
-                              {course.section}
-                            </Text>
-                          </View>
-                        </div>
-                      )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                    </div>
-                    )}
-                  </Droppable>
-                </DragDropContext> */}
                 <Card.Group style={{justifyContent: 'center'}}>
                   { indexedCourses.map((course) => (
                     <Card style={{padding: 20}}>
@@ -288,7 +241,6 @@ renderSchedule () {
                   )) }
                 </Card.Group>
               </View>
-            {/* </View> */}
           </Grid.Column>
           <Grid.Column>
             <View style={{ justifyContent: 'center', alignItems: 'center'}}>

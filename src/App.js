@@ -4,25 +4,21 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
 import ScheduleMutation from './Queries/ScheduleMutation';
 import { Divider, Search, Grid, Button, Card } from 'semantic-ui-react';
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
 import './App.css';
 import HeaderText from './Components/HeaderText';
 import StyledHeader from './Components/StyledHeader';
 
 const BelmontBlue = '#142753';
 
-const RemoveButton = props => {
-
-  return (
+const RemoveButton = props => (
     <View style={{ backgroundColor: BelmontBlue, borderRadius: 30, flex: 1, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-      <TouchableOpacity onPress={() => props.onPress(props.index)} style={{ alignContent: 'center', alignSelf: 'center', justifyContent: 'center'}}>
-        <Text style={{ textAlign: 'center', padding: 15, color: 'white'}}>
+      <TouchableOpacity onPress={() => props.onPress(props.index)} style={{ alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}>
+        <Text style={{ textAlign: 'center', padding: 15, color: 'white' }}>
           Remove 
         </Text>
       </TouchableOpacity> 
-    </View>
-  )   
-}
+    </View> 
+)
 
 class App extends Component {
   constructor(props) {
@@ -53,7 +49,7 @@ class App extends Component {
     console.log(courses);
       setTimeout(() => {
         if (this.state.value.length < 1) return this.resetComponent()
-        if (courses.length > 0) {
+        if (courses) {
           this.setState({
             isLoading: false,
             // Only filter if we have input TO filter
@@ -64,7 +60,7 @@ class App extends Component {
               console.log(split);
               return (
                 course.title.toLowerCase().includes(
-                  this.state.value.toLowerCase()
+                  split.toLowerCase()
                 ) ||
                 subjectSection.toLowerCase().includes(
                   split.toLowerCase()
@@ -112,6 +108,7 @@ renderSchedule () {
           <Card.Header content={course.title} />
           <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
           <Card.Meta> {course.instructor} </Card.Meta>
+          <Card.Meta> CRN: {course.crn} </Card.Meta>
           { course.roomDayAndTime.map((time) => {
             console.log('day and time map', time);
             return (
@@ -174,7 +171,6 @@ renderSchedule () {
   removeCourse = (index) => {
     var { selectedCourses } = this.state;
     selectedCourses.splice(index, 1);
-    console.log(selectedCourses[index], index, 'Remove Pressed')
     this.setState({ selectedCourses });
   };
   
@@ -253,51 +249,6 @@ renderSchedule () {
         <Grid.Column>
             <View style={{ alignItems: 'center', alignSelf: 'center',
                             justifyContent: 'center'}}>
-              {/* <DragDropContext
-                onDragEnd={this.onDragEnd}
-              >
-                <Droppable direction='vertical' droppableId="droppable">
-                  {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef  }
-                      style={{background: 'transparent', padding: 10, width: 250, borderColor: '#142753'}}
-                      {...provided.droppableProps}
-                    >
-                    {indexedCourses.map((course) =>
-                    (
-                      console.log(index),
-                      <Draggable key={course.section} draggableId={course.section} index={course.index} type='Course'>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          style={{ backgroundColor: snapshot.isDraggingOver ? 'blue' : 'white'}}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          
-                        >
-                          <View style={{  margin: 10,
-                                          backgroundColor: BelmontBlue, 
-                                          borderRadius: 40,
-                                          shadowColor: 'black',
-                                          shadowOffset: { width: 0, height: 10},
-                                          shadowOpacity: 0.2,
-                                          shadowRadius: 10 }}>
-                            <Text style={{ fontSize: 18, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', paddingTop: 20, paddingHorizontal: 15}}>
-                              {course.title}
-                            </Text>
-                            <Text style={{ fontSize: 15, alignSelf: 'center', fontFamily: 'Montserrat', color: 'white', textAlign: 'center', paddingBottom: 10 }}>
-                              {course.section}
-                            </Text>
-                          </View>
-                        </div>
-                      )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                    </div>
-                    )}
-                  </Droppable>
-                </DragDropContext> */}
                 <Card.Group style={{justifyContent: 'center'}}>
                   { indexedCourses.map((course) => (
                     <View style={{justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30}}>
@@ -305,9 +256,6 @@ renderSchedule () {
                         <Card.Header content={course.title}/>
                         <Card.Meta> {course.section} </Card.Meta>
                       </Card>
-                      {/* <Button onClick={(course) => this.removeCouse}>
-                        Remove {course.title}
-                      </Button> */}
                       <RemoveButton title={course.title} onPress={this.removeCourse} index={course.index}/>
                     </View>
                   )) }

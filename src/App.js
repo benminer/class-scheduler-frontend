@@ -1,24 +1,15 @@
 import React, { Component } from 'react';
 import { graphql, compose } from 'react-apollo';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
 import ScheduleMutation from './Queries/ScheduleMutation';
 import { Divider, Search, Grid, Button, Card } from 'semantic-ui-react';
 import './App.css';
 import HeaderText from './Components/HeaderText';
+import RemoveButton from './Components/RemoveButton';
 import StyledHeader from './Components/StyledHeader';
-
-const BelmontBlue = '#142753';
-
-const RemoveButton = props => (
-    <View style={{ backgroundColor: BelmontBlue, borderRadius: 30, flex: 1, alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-      <TouchableOpacity onPress={() => props.onPress(props.index)} style={{ alignContent: 'center', alignSelf: 'center', justifyContent: 'center' }}>
-        <Text style={{ textAlign: 'center', padding: 15, color: 'white' }}>
-          Remove 
-        </Text>
-      </TouchableOpacity> 
-    </View> 
-)
+import formatDate from './utils/formatDate';
+import formatTimes from './utils/formatTimes';
 
 class App extends Component {
   constructor(props) {
@@ -27,10 +18,9 @@ class App extends Component {
       selectedCourses: [],
       schedule: [],
       results: [],
-      value: '',
+      value: '', 
       isLoading: false
     }
-    this.onDragEnd = this.onDragEnd.bind(this);
     this.createSchedule = this.createSchedule.bind(this);
   }
 
@@ -73,100 +63,24 @@ class App extends Component {
     
   }
 
-  onDragEnd (result) {
-    const { selectedCourses } = this.state;
-    // If the user presses cancel mid-drag, we get a 'CANCEL' as the reason.
-    if (result.reason === 'CANCEL') {
-      return;
-    // If the item was dragged off the list, we assume the 
-    // user wants to remove it.
-    } else if (!result.destination) {
-      var removedCourse = selectedCourses.splice(result.source.index, 1);
-      this.setState({ selectedCourses })
-    // If the user cancelled mid-drag, do nothing.
-    } else {
-      // Get the dragged item's index and then its destination index
-      // and replace it at that locatio n
-      var reorderedCourses = this.reorder(selectedCourses, result.source.index, result.destination.index)
-      this.setState({ selectedCourses: reorderedCourses })
-    }
+  renderSchedule () {
+    return (
+      <Card.Group style={{justifyContent: 'center'}}>
+        {this.state.schedule.map((course) => (
+          <Card key={course.section} style={{padding: 20}}>
+            <Card.Header content={course.title} />
+            <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
+            <Card.Meta> {course.instructor} </Card.Meta>
+            <Card.Meta> CRN: {course.crn} </Card.Meta>
+            { course.roomDayAndTime.map((time) => (
+              <Card.Description key={time.day}> {formatDate(time.day)} from {formatTimes(time.begin)} to {formatTimes(time.end)} </Card.Description>
+              )
+            )}
+          </Card>
+        ))}
+      </Card.Group>
+      ) 
   }
-
-  reorder = (courses, source, destination) => {
-    // Replace source course at destination it was dragged to
-    var itemToMove = courses.splice(source, 1);
-    courses.splice(destination, 0, itemToMove[0]) ;
-    // Return the new reordered array
-    return courses
-  }
-
-renderSchedule () {
-  return (
-    <Card.Group style={{justifyContent: 'center'}}>
-      {this.state.schedule.map((course) => (
-        <Card style={{padding: 20}}>
-          <Card.Header content={course.title} />
-          <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
-          <Card.Meta> {course.instructor} </Card.Meta>
-          <Card.Meta> CRN: {course.crn} </Card.Meta>
-          { course.roomDayAndTime.map((time) => {
-            console.log('day and time map', time);
-            return (
-            <Card.Description> {this.formatDate(time.day)} from {this.formatTimes(time.begin)} to {this.formatTimes(time.end)} </Card.Description>
-            )
-          })
-          }
-        </Card>
-      )) }
-    </Card.Group>
-    ) 
-  }
-
-  // course.roomDayAndTime.map((time) => {
-  //   return <Text>{time.day}, {time.begin}, {time.end}</Text>
-
-  formatDate = (thisDay) => {
-    switch(thisDay) {
-      case ('M'):
-        return 'Monday'
-        break;
-      case ('T'):
-        return 'Tuesday'
-        break;
-      case ('W'):
-        return 'Wednesday'
-        break;
-      case('R'):
-        return 'Thursday'
-        break;
-      case ('F'):
-        return 'Friday'
-        break;
-      case ('S'):
-        return 'Saturday'
-        break;
-    }
-  }
-
-  formatTimes = (thisTime) => {
-    var time = thisTime.slice(0,5);
-    var hour = time.slice(0,2);
-    var minutes = time.slice(3,5);
-    console.log(time, hour, minutes);
-    var dd = "AM";
-  
-    if (hour > 12) {
-      console.log('if has been hit')
-      hour = hour - 12;
-      dd = "PM";
-    } else if (hour == 12) {
-      dd = "PM"
-    }
-    
-    return hour + ':' + minutes + ' ' + dd
-
-  }
-
 
   removeCourse = (index) => {
     var { selectedCourses } = this.state;
@@ -240,7 +154,7 @@ renderSchedule () {
                         onSearchChange={this.handleSearchChange}
                         results={results}
                         value={value}
-                        size={window.innerWidth <= 400 ? 'small' : 'massive'}
+                        size={'massive'}
                         fluid={true}
                         {...this.props}
                 />
@@ -251,12 +165,12 @@ renderSchedule () {
                             justifyContent: 'center'}}>
                 <Card.Group style={{justifyContent: 'center'}}>
                   { indexedCourses.map((course) => (
-                    <View style={{justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30}}>
+                    <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30 }}>
                       <Card style={{padding: 20}}>
                         <Card.Header content={course.title}/>
                         <Card.Meta> {course.section} </Card.Meta>
                       </Card>
-                      <RemoveButton title={course.title} onPress={this.removeCourse} index={course.index}/>
+                      <RemoveButton color={'#142753'} title={course.title} onPress={this.removeCourse} index={course.index}/>
                     </View>
                   )) }
                 </Card.Group>

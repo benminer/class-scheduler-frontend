@@ -8,6 +8,10 @@ import './App.css';
 import HeaderText from './Components/HeaderText';
 import RemoveButton from './Components/RemoveButton';
 import StyledHeader from './Components/StyledHeader';
+import { 
+  CreditText,
+  DisclaimerText 
+} from './Components';
 import formatDate from './utils/formatDate';
 import formatTimes from './utils/formatTimes';
 
@@ -33,10 +37,9 @@ class App extends Component {
     this.setState({ selectedCourses }) 
   }
 
-  handleSearchChange = (e, { value }) => {
+  handleSearchChange = (_e, { value }) => {
     this.setState({ isLoading: true, value })
     const { courses } = this.props.data;
-    console.log(courses);
       setTimeout(() => {
         if (this.state.value.length < 1) return this.resetComponent()
         if (courses) {
@@ -47,7 +50,6 @@ class App extends Component {
               var slicedSection = course.section.slice(0, 4);
               const subjectSection = course.subjectId + slicedSection;
               var split = this.state.value.split(' ').join('');
-              console.log(split);
               return (
                 course.title.toLowerCase().includes(
                   split.toLowerCase()
@@ -65,8 +67,8 @@ class App extends Component {
 
   renderSchedule () {
     return (
-      <Card.Group style={{justifyContent: 'center'}}>
-        {this.state.schedule.map((course) => (
+      <Card.Group style={{justifyContent: 'center', flexDirection: 'column'}}>
+        {this.state.schedule.map(course => (
           <Card key={course.section} style={{padding: 20}}>
             <Card.Header content={course.title} />
             <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
@@ -143,6 +145,16 @@ class App extends Component {
           <Text style={{ fontFamily: 'Montserrat', fontSize: 18, textAlign: 'center', flex: 1, top: 50}}>
               Once submitted, a schedule will be generated.
           </Text>
+          <View style={{ height: 20 }} />
+          <DisclaimerText style={{ fontSize: 20 }}>
+            This program is not made by nor endorsed by Belmont University. 
+          </DisclaimerText>
+          <DisclaimerText style={{ fontSize: 16 }}>
+            It is for illustrative purposes only and assumes no responsibility for incorrect information displayed. (Although it should be correct!) ;)
+          </DisclaimerText>
+          <CreditText style={{ marginTop: 20, fontSize: 15 }}>
+            {`Made with ❤️ by the Belmont University Developers Society`}
+          </CreditText>
         </View>
         <Divider section/> 
         <Grid columns={3} divided padded={'vertically'} centered>
@@ -163,8 +175,8 @@ class App extends Component {
         <Grid.Column>
             <View style={{ alignItems: 'center', alignSelf: 'center',
                             justifyContent: 'center'}}>
-                <Card.Group style={{justifyContent: 'center'}}>
-                  { indexedCourses.map((course) => (
+                <Card.Group style={{justifyContent: 'center', flexDirection: 'column'}}>
+                  { indexedCourses.map(course => (
                     <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30 }}>
                       <Card style={{padding: 20}}>
                         <Card.Header content={course.title}/>
@@ -192,4 +204,7 @@ class App extends Component {
   }
 }
 
-export default compose(graphql(ScheduleMutation), graphql(CourseQuery))(App);
+export default compose(
+  graphql(ScheduleMutation), 
+  graphql(CourseQuery)
+  )(App);

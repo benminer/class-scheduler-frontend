@@ -31,8 +31,8 @@ class App extends Component {
   resetComponent = () => this.setState({ isLoading: false, results: [], class: '' });
 
   // Appends the selected classses array
-  handleResultSelect = (e, { result }) => {
-    var { selectedCourses } = this.state;
+  handleResultSelect = (_e, { result }) => {
+    const { selectedCourses } = this.state;
     selectedCourses.push(result);
     this.setState({ selectedCourses }) 
   }
@@ -45,11 +45,10 @@ class App extends Component {
         if (courses) {
           this.setState({
             isLoading: false,
-            // Only filter if we have input TO filter
-            results: this.state.value !== null ? courses.filter(course => {
-              var slicedSection = course.section.slice(0, 4);
+            results: this.state.value ? courses.filter(course => {
+              const slicedSection = course.section.slice(0, 4);
               const subjectSection = course.subjectId + slicedSection;
-              var split = this.state.value.split(' ').join('');
+              const split = this.state.value.split(' ').join('');
               return (
                 course.title.toLowerCase().includes(
                   split.toLowerCase()
@@ -85,7 +84,7 @@ class App extends Component {
   }
 
   removeCourse = (index) => {
-    var { selectedCourses } = this.state;
+    const { selectedCourses } = this.state;
     selectedCourses.splice(index, 1);
     this.setState({ selectedCourses });
   };
@@ -102,7 +101,7 @@ class App extends Component {
         }
       }
     })
-      .then((result) => {
+      .then(result => {
           const schedule = result.data.makeSchedule.schedule;
           this.setState({
             schedule
@@ -126,7 +125,7 @@ class App extends Component {
         {
         title: course.title,
         section: subjectSection,
-        index: index+=1
+        index: index += 1
         }
       )
     })

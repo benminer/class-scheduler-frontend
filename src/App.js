@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { graphql, compose } from 'react-apollo';
-import { View, Text } from 'react-native';
+import { prop, path, map } from 'ramda';
+import { View, Text, ActivityIndicator } from 'react-native';
 import CourseQuery from './Queries/CourseQuery';
 import ScheduleMutation from './Queries/ScheduleMutation';
-import { Divider, Search, Grid, Button, Card } from 'semantic-ui-react';
+import { Divider, Search, Grid, Button, Card, Header, Icon } from 'semantic-ui-react';
 import './App.css';
 import HeaderText from './Components/HeaderText';
 import RemoveButton from './Components/RemoveButton';
@@ -20,17 +21,18 @@ class App extends Component {
     super(props)
     this.state = {
       selectedCourses: [],
-      schedule: [],
+      schedules: [],
+      noScheduleFound: false, 
+      schedulesLoading: false,
       results: [],
       value: '', 
       isLoading: false
     }
-    this.createSchedule = this.createSchedule.bind(this);
   }
 
   resetComponent = () => this.setState({ isLoading: false, results: [], class: '' });
 
-  // Appends the selected classses array
+  // Appends the selected classes array
   handleResultSelect = (_e, { result }) => {
     const { selectedCourses } = this.state;
     selectedCourses.push(result);
@@ -41,23 +43,23 @@ class App extends Component {
     this.setState({ isLoading: true, value })
     const { courses } = this.props.data;
       setTimeout(() => {
-        if (this.state.value.length < 1) return this.resetComponent()
+        const { value } = this.state
+        if (value.length < 1) return this.resetComponent()
         if (courses) {
           this.setState({
             isLoading: false,
-            results: this.state.value ? courses.filter(course => {
+            results: value && courses.filter(course => {
               const slicedSection = course.section.slice(0, 4);
               const subjectSection = course.subjectId + slicedSection;
-              const split = this.state.value.split(' ').join('');
+              const cleanedVal = value.replace(/\s/g, '').toLowerCase();
               return (
                 course.title.toLowerCase().includes(
-                  split.toLowerCase()
+                  cleanedVal
                 ) ||
                 subjectSection.toLowerCase().includes(
-                  split.toLowerCase()
+                  cleanedVal
                 )
             )})
-            : null
           }) 
         }
         }, 500)
@@ -65,23 +67,43 @@ class App extends Component {
   }
 
   renderSchedule () {
-    return (
-      <Card.Group style={{justifyContent: 'center', flexDirection: 'column'}}>
-        {this.state.schedule.map(course => (
-          <Card key={course.section} style={{padding: 20}}>
-            <Card.Header content={course.title} />
-            <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
-            <Card.Meta> {course.instructor} </Card.Meta>
-            <Card.Meta> CRN: {course.crn} </Card.Meta>
-            { course.roomDayAndTime.map((time) => (
-              <Card.Description key={time.day}> {formatDate(time.day)} from {formatTimes(time.begin)} to {formatTimes(time.end)} </Card.Description>
-              )
-            )}
-          </Card>
-        ))}
-      </Card.Group>
+    const { schedules, schedulesLoading, noScheduleFound } = this.state;
+    if (schedulesLoading) {
+      return (
+        <View style={{ alignContent: 'center', justifyContent: 'center' }}>
+          <ActivityIndicator color='#142753' size='large' animating={true} />
+        </View>
+      )
+    } else if (!schedulesLoading && noScheduleFound) {
+      return (
+        <View style={{ alignContent: 'center', justifyContent: 'center' }}>
+          <Header as='h4'> Could not generate non-conflicting schedule! </Header>
+        </View>
+      )
+    } else {
+      return (
+        <Card.Group style={{ justifyContent: 'center', flexDirection: 'column', marginBottom: 50 }}>
+          {schedules.map((schedule, i) => (
+            <View key={`${schedule.__typename - Date.now() - i}`}>
+              <Header style={{ paddingVertical: i === 0 ? 30 : 30 }} as='h4'>{`Schedule ${i + 1}`}</Header>
+              {schedule.courses.map(course => (
+                <Card key={course.crn} style={{ padding: 20, marginBottom: schedule.courses.length === i ? 20 : 0 }}>
+                  <Card.Header content={course.title} />
+                  <Card.Meta> {course.subjectId + ' ' + course.section} </Card.Meta>
+                  <Card.Meta> {course.instructor} </Card.Meta>
+                  <Card.Meta> CRN: {course.crn} </Card.Meta>
+                  {course.roomDayAndTime.map(time => (
+                    <Card.Description key={time.day}> {formatDate(time.day)} from {formatTimes(time.begin)} to {formatTimes(time.end)} </Card.Description>
+                  )
+                  )}
+                </Card>
+              ))}
+            </View>
+          ))}
+        </Card.Group>
       ) 
-  }
+    }
+  };
 
   removeCourse = (index) => {
     const { selectedCourses } = this.state;
@@ -90,45 +112,53 @@ class App extends Component {
   };
   
 
-  createSchedule() {
-    const course_titles = this.state.selectedCourses.map((course) =>
-      course.title
-    );
+  createSchedule = () => {
+    const { selectedCourses } = this.state;
+
+    if (selectedCourses.length <= 1) {
+      alert('You need to select more than 1 course!');
+      return;
+    }
+    this.setState({ schedulesLoading: true, noScheduleFound: false });
     this.props.mutate({
       variables: {
         courses: {
-          "courseTitles": course_titles
+          "courseTitles": map(prop('title'), selectedCourses)
         }
       }
     })
       .then(result => {
-          const schedule = result.data.makeSchedule.schedule;
+          const schedules = path(['data', 'makeSchedule', 'schedules'], result);
+          console.log(result.data, 'schedule resp');
           this.setState({
-            schedule
+            schedules,
+            schedulesLoading: false,
+            noScheduleFound: schedules.length ? false : true
           })
         }
       )
-      .catch((error) => {
+      .catch(error => {
+        this.setState({
+          schedulesLoading: false
+        });
         console.log(error)
-      })
+      });
   }
 
-  render() {
+  render () {
     const { isLoading, results, value, selectedCourses } = this.state;
     // We index here since the actual GraphQL objects are immutable,
     // and we need an index for the Drag and Drop to work properly.
     var index = -1;
     const indexedCourses = selectedCourses.map(course => {
-      var slicedSection = course.section.slice(0, 4);
+      const slicedSection = course.section.slice(0, 4);
       const subjectSection = course.subjectId + ' ' + slicedSection;
-      return (
-        {
+      return ({
         title: course.title,
         section: subjectSection,
         index: index += 1
-        }
-      )
-    })
+      });
+    });
 
     return (
       <div className="App">
@@ -173,10 +203,10 @@ class App extends Component {
         </Grid.Column>
         <Grid.Column>
             <View style={{ alignItems: 'center', alignSelf: 'center',
-                            justifyContent: 'center'}}>
+                           justifyContent: 'center' }}>
                 <Card.Group style={{justifyContent: 'center', flexDirection: 'column'}}>
                   { indexedCourses.map(course => (
-                    <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30 }}>
+                    <View key={course.index} style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'center', paddingTop: 30 }}>
                       <Card style={{padding: 20}}>
                         <Card.Header content={course.title}/>
                         <Card.Meta> {course.section} </Card.Meta>
@@ -189,8 +219,11 @@ class App extends Component {
           </Grid.Column>
           <Grid.Column>
             <View style={{ justifyContent: 'center', alignItems: 'center'}}>
-              <Button onClick={this.createSchedule}>
-                    Create Schedule
+              <Button animated content='Primary' onClick={this.createSchedule}>
+                    <Button.Content hidden>Generate Schedule</Button.Content>
+                    <Button.Content visible>
+                      <Icon name='send' />
+                    </Button.Content>
               </Button>
               <View style={{ flex: 1, marginTop: 50, alignItems: 'center', alignSelf: 'center', justifyContent: 'center'}}>
               {this.renderSchedule()}

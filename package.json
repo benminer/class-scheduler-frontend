@@ -9,6 +9,7 @@
     "graphql-tag": "^2.5.0",
     "jquery": "^3.0.0",
     "lodash": "^4.17.5",
+    "ramda": "^0.26.1",
     "react": "^16.1.1",
     "react-apollo": "^2.0.1",
     "react-beautiful-dnd": "^5.0.0",
